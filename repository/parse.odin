@@ -25,7 +25,7 @@ File_Error :: enum {
 
 is_package_name_valid :: proc(name: string) -> bool {
 	name := strings.trim_space(name)
-	if len(name) > 3 && !is_ascii_letters(name) {
+	if len(name) < 3 || !is_ascii_letters(name) {
 		fmt.println("Invalid package name:", name)
 		return false
 	}
