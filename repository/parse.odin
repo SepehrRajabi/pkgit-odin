@@ -5,6 +5,7 @@ import "core:fmt"
 import "core:os"
 import "core:slice"
 import "core:strings"
+import "core:text/regex"
 
 Package :: struct {
 	name:          string,
@@ -22,8 +23,24 @@ File_Error :: enum {
 }
 
 
+is_package_name_valid :: proc(name: string) -> bool {
+	name := strings.trim_space(name)
+	if len(name) > 3 && !is_ascii_letters(name) {
+		fmt.println("Invalid package name:", name)
+		return false
+	}
+	return true
+}
+
 validate_package :: proc(pkg: ^Package) -> bool {
-	if pkg.url == "" {
+	if !is_package_name_valid(pkg.name) {
+		return false
+	}
+
+	url_regex := initialize_url_regex()
+	_, success := regex.match(url_regex, pkg.url)
+	if !success {
+		fmt.printfln("Invalid URL: %s", pkg.url)
 		return false
 	}
 
