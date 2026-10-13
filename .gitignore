@@ -13,3 +13,6 @@ dev/tools/tagfixer/example/updated_rational_numbers_test.odin
 
 #jsonl files
 *.jsonl
+*.json
+*.yml
+*.yaml
