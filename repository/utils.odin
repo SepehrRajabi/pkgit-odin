@@ -78,8 +78,7 @@ lex_yaml :: proc(data: []byte) -> ([]Token, File_Error) {
 create_splits :: proc(tokens: []Token) -> []int {
 	indices := make([dynamic]int, context.temp_allocator)
 
-	i := 0
-	for i < len(tokens) - 1 {
+	for i := 0; i < len(tokens) - 1; i += 1 {
 		current := tokens[i]
 		next := tokens[i + 1]
 
@@ -89,12 +88,9 @@ create_splits :: proc(tokens: []Token) -> []int {
 			next.type == "VALUE" &&
 			next.value.(string) == ""
 
-		pkg_prcoess: for hit_new_package {
+		if hit_new_package {
 			append(&indices, i)
-			break pkg_prcoess
 		}
-
-		i += 1
 	}
 
 	return indices[:]
