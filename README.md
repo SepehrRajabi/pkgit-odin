@@ -5,7 +5,7 @@
 
 ## Roadmap
 
-- [] Add a yaml parser
+- [x] Add a yaml parser
 - [] Add post install commands
 - [] Add support for lua(?)
 - [] Add a simple schema validator
