@@ -59,7 +59,7 @@ validate_package :: proc(pkg: ^Package) -> bool {
 
 	if pkg.name == "" {
 		parts := strings.split(pkg.url, "/", context.temp_allocator)
-		pkg.name = parts[len(parts) - 1]
+		pkg.name = strings.trim_right(parts[len(parts) - 1], ".git")
 	}
 
 	if pkg.build_command == "" {
