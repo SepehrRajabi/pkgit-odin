@@ -100,7 +100,7 @@ create_splits :: proc(tokens: []Token) -> []int {
 	return indices[:]
 }
 
-parse_split_to_package :: proc(tokens: []Token) -> []Package {
+parse_yaml_tokens_to_package :: proc(tokens: []Token) -> []Package {
 	packages := make([dynamic]Package, context.temp_allocator)
 
 	indecies := create_splits(tokens)

@@ -96,7 +96,7 @@ parse_yaml_file :: proc(data: []byte) -> ([]Package, File_Error) {
 		return nil, File_Error.Empty_File
 	}
 
-	return parse_split_to_package(tokens), File_Error.nil
+	return parse_yaml_tokens_to_package(tokens), File_Error.nil
 }
 
 parse_repo_file :: proc(file_path: string) -> ([]Package, File_Error) {
