@@ -36,6 +36,40 @@ initialize_url_regex :: proc() -> regex.Regular_Expression {
 	return URL_REGEX
 }
 
+is_package_name_valid :: proc(name: string) -> bool {
+	name := strings.trim_space(name)
+	if len(name) < 3 || !is_ascii_letters(name) {
+		fmt.println("Invalid package name:", name)
+		return false
+	}
+	return true
+}
+
+validate_package :: proc(pkg: ^Package) -> bool {
+	if !is_package_name_valid(pkg.name) {
+		return false
+	}
+
+	url_regex := initialize_url_regex()
+	_, success := regex.match(url_regex, pkg.url)
+	if !success {
+		fmt.printfln("Invalid URL: %s", pkg.url)
+		return false
+	}
+
+	if pkg.name == "" {
+		parts := strings.split(pkg.url, "/", context.temp_allocator)
+		pkg.name = parts[len(parts) - 1]
+	}
+
+	if pkg.build_command == "" {
+		return false
+	}
+
+	return true
+}
+
+
 Token :: struct {
 	type:  string,
 	value: union {
