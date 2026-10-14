@@ -31,7 +31,7 @@ main :: proc() {
 			continue
 		}
 		fmt.printfln(
-			"Package: %s, URL: %s, Build Command: %s",
+			"Package: %s\nURL: %s\nBuild Command: %s",
 			pkg.name,
 			pkg.url,
 			pkg.build_command,

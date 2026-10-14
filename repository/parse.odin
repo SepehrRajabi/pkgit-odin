@@ -22,7 +22,6 @@ File_Error :: enum {
 	Empty_File,
 }
 
-
 is_package_name_valid :: proc(name: string) -> bool {
 	name := strings.trim_space(name)
 	if len(name) < 3 || !is_ascii_letters(name) {
@@ -88,9 +87,16 @@ parse_jsonl_file :: proc(data: []byte) -> ([]Package, File_Error) {
 }
 
 parse_yaml_file :: proc(data: []byte) -> ([]Package, File_Error) {
-	// Placeholder for YAML parsing logic
-	// TODO: Implement YAML parsing here using a suitable library or custom parser
-	return nil, File_Error.Unsupported_Extension
+	tokens, err := lex_yaml(data)
+	if err != nil {
+		return nil, File_Error.Parsing_File
+	}
+
+	if len(tokens) == 0 {
+		return nil, File_Error.Empty_File
+	}
+
+	return parse_split_to_package(tokens), File_Error.nil
 }
 
 parse_repo_file :: proc(file_path: string) -> ([]Package, File_Error) {
