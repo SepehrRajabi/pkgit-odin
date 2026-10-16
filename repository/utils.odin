@@ -84,7 +84,7 @@ is_target_directory_valid :: proc(pkg: ^Package) -> bool {
 }
 
 is_post_install_command_valid :: proc(pkg: ^Package) -> bool {
-	return pkg.post_install_coammnd != ""
+	return pkg.post_install_command != ""
 }
 
 validate_package :: proc(pkg: ^Package) -> bool {
@@ -221,8 +221,8 @@ update_package_fields :: proc(split: []Token, p: ^Package) -> ^Package {
 			p.target_directory = value
 		case "system_wide":
 			p.system_wide = value == "true"
-		case "post_install_coammand":
-			p.post_install_coammnd = value
+		case "post_install_command":
+			p.post_install_command = value
 		}
 	}
 

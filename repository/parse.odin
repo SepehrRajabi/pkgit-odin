@@ -12,7 +12,7 @@ Package :: struct {
 	build_command:        string,
 	target_directory:     string,
 	system_wide:          bool,
-	post_install_coammnd: string,
+	post_install_command: string,
 }
 
 File_Error :: enum {
