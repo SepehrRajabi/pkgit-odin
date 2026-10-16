@@ -5,12 +5,14 @@ import "core:fmt"
 import "core:os"
 import "core:slice"
 import "core:strings"
-import "core:text/regex"
 
 Package :: struct {
-	name:          string,
-	url:           string,
-	build_command: string,
+	name:                 string,
+	url:                  string,
+	build_command:        string,
+	target_directory:     string,
+	system_wide:          bool,
+	post_install_coammnd: string,
 }
 
 File_Error :: enum {

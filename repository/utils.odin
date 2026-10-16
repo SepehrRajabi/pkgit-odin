@@ -2,6 +2,7 @@ package repository
 
 import "core:fmt"
 import "core:os"
+import "core:path/filepath"
 import "core:strings"
 import "core:text/regex"
 
@@ -36,8 +37,8 @@ initialize_url_regex :: proc() -> regex.Regular_Expression {
 	return URL_REGEX
 }
 
-is_package_name_valid :: proc(name: string) -> bool {
-	name := strings.trim_space(name)
+is_name_valid :: proc(pkg: ^Package) -> bool {
+	name := strings.trim_space(pkg.name)
 	if len(name) < 3 || !is_ascii_letters(name) {
 		fmt.println("Invalid package name:", name)
 		return false
@@ -45,15 +46,53 @@ is_package_name_valid :: proc(name: string) -> bool {
 	return true
 }
 
-validate_package :: proc(pkg: ^Package) -> bool {
-	if !is_package_name_valid(pkg.name) {
-		return false
-	}
-
+is_url_valid :: proc(pkg: ^Package) -> bool {
 	url_regex := initialize_url_regex()
 	_, success := regex.match(url_regex, pkg.url)
 	if !success {
 		fmt.printfln("Invalid URL: %s", pkg.url)
+		return false
+	}
+	return true
+}
+
+is_build_command_valid :: proc(pkg: ^Package) -> bool {
+	return pkg.build_command != ""
+}
+
+is_target_directory_valid :: proc(pkg: ^Package) -> bool {
+	// 0. check if the value passed is an actual directory on disk
+	//? should this be done further down this block? maybe the call site should not find out if the directory exists or not.
+	if !os.is_dir(pkg.target_directory) {
+		fmt.printfln("failiure")
+		return false
+	}
+	// 1. Lexically resolve and clean both paths to strip out '.' and inner '..' elements
+	clean_user, err_user := filepath.clean(pkg.target_directory, context.temp_allocator)
+	clean_root, err_root := filepath.clean(".", context.temp_allocator)
+
+	if err_user != nil || err_root != nil do return false
+
+	// 2. Prevent malicious relative breakouts (e.g., if user inputs just "../../")
+	// If a user path starts with "..", it's attempting to escape the relative context
+	if strings.has_prefix(clean_user, "..") do return false
+
+	// 3. Ensure the absolute/resolved target path actually starts with our safe root
+	if !strings.has_prefix(clean_user, clean_root) do return false
+
+	return true
+}
+
+is_post_install_command_valid :: proc(pkg: ^Package) -> bool {
+	return pkg.post_install_coammnd != ""
+}
+
+validate_package :: proc(pkg: ^Package) -> bool {
+	if !is_name_valid(pkg) {
+		return false
+	}
+
+	if !is_url_valid(pkg) {
 		return false
 	}
 
@@ -62,7 +101,15 @@ validate_package :: proc(pkg: ^Package) -> bool {
 		pkg.name = strings.trim_right(parts[len(parts) - 1], ".git")
 	}
 
-	if pkg.build_command == "" {
+	if !is_build_command_valid(pkg) {
+		return false
+	}
+
+	if !is_post_install_command_valid(pkg) {
+		return false
+	}
+
+	if !is_target_directory_valid(pkg) {
 		return false
 	}
 
@@ -170,6 +217,12 @@ update_package_fields :: proc(split: []Token, p: ^Package) -> ^Package {
 			p.url = value
 		case "build_command":
 			p.build_command = value
+		case "target_directory":
+			p.target_directory = value
+		case "system_wide":
+			p.system_wide = value == "true"
+		case "post_install_coammand":
+			p.post_install_coammnd = value
 		}
 	}
 
